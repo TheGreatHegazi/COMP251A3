@@ -5,12 +5,29 @@ public class FordFulkerson {
 
 	public static ArrayList<Integer> pathDFS(Integer source, Integer destination, WGraph graph) {
 		ArrayList<Integer> Stack = new ArrayList<Integer>();
-		getNodes(graph);
+		ArrayList<Integer> nodes = new ArrayList<Integer>();
+		ArrayList<Integer> adj = new ArrayList<Integer>();
+		nodes = getNodes(graph);
+		int[] visited = new int[nodes.size()];
+		adj = getAdj(nodes.get(source), graph);
+		
+		
 		return Stack;
 	}
 
-	Public static ArrayList<Integer> getAdj (int node){
+
+	public static ArrayList<Integer> getAdj (int node, WGraph g){
 		ArrayList<Integer> adj= new ArrayList<Integer>();
+		for (Edge e: g.getEdges()){
+			for (int n : e.nodes)
+			if (n == node)
+				if (e.nodes[0]==node){
+					adj.add(e.nodes[1]);
+				}
+				else{
+				adj.add(e.nodes[0]);
+				}
+		}
 		return adj;
 	}
 	public static ArrayList<Integer> getNodes(WGraph g) {
