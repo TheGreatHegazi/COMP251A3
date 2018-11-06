@@ -65,45 +65,91 @@ public class FordFulkerson {
 
 	}
 
+	public static WGraph createG(WGraph g) {
+		WGraph graph = new WGraph(g);
+		ArrayList<Edge> edgesF = graph.getEdges();
+		for (Edge e : edgesF) {
+			e.weight = 0;
+		}
+		return graph;
+	}
+
 	public static void fordfulkerson(Integer source, Integer destination, WGraph graph, String filePath) {
-	
+
 		String answer = "";
 		String myMcGillID = "260725697"; // Please initialize this variable with
 											// your McGill ID
 		int maxFlow = 0;
 		int[][] forwardEdge = new int[(graph.getNbNodes())][(graph.getNbNodes())];
-		
-		
-		
-		WGraph graphF = new WGraph();
-		ArrayList<Edge> edgesF = graphF.getEdges();
-		for (Edge e : edgesF) {
-			e.weight = 0;
-		}
 
-		
+		WGraph graphF = createG(graph);
+		WGraph graphR = createG(graph);
+
 		ArrayList<Integer> path = pathDFS(source, destination, graph);
-		
-		if( path .isEmpty()){
+
+		if (path.isEmpty()) {
 			answer += maxFlow + "\n" + graph.toString();
 			writeAnswer(filePath + myMcGillID + ".txt", answer);
 			System.out.println(answer);
 		}
-		
-		
-		int throttle = 55555555;
-		ArrayList<Edge> edgecapacity = graph.getEdges();
-		for (Edge e : edgecapacity){
-			throttle = Math.min(throttle, e.weight);
-		}
-		
-		for (int i = 0; i < path.size()-1; i++){
-			Edge e = graphF.getEdge(path.get(i), path.get(i+1));
-			e.weight = throttle;
-		}
-		
-		
 
+		int bottleNeck = 55555555;
+		ArrayList<Edge> edgecapacity = graph.getEdges();
+		for (Edge e : edgecapacity) {
+			bottleNeck = Math.min(bottleNeck, e.weight);
+		}
+
+		for (int i = 0; i < path.size() - 1; i++) {
+			Edge e = graphR.getEdge(path.get(i), path.get(i + 1));
+			e.weight = e.weight + bottleNeck; // increment
+		}
+
+		for (Edge e : graph.getEdges()) {
+			if (bottleNeck < e.weight) {
+				//graphR.addEdge(new Edge(e.nodes[0], e.nodes[1], e.weight - bottleNeck));
+				graphR.setEdge(e.nodes[0], e.nodes[1], e.weight-bottleNeck);
+				forwardEdge[e.nodes[0]][e.nodes[1]] = e.weight;
+
+			}
+			if (bottleNeck > 0) {
+				//graphR.addEdge(new Edge(e.nodes[0], e.nodes[1], bottleNeck));
+				graphR.setEdge(e.nodes[0], e.nodes[1], bottleNeck);
+			}
+		}
+		
+		while (true){
+			ArrayList<Integer> pathR = pathDFS(source, destination, graphR);
+			if (! pathR.isEmpty()){
+				maxFlow = augmentPath( pathR, graphR, forwardEdge, maxFlow);
+				
+				graphUpdate(graphF,graphR);
+			}else {
+				break;
+			}
+		}
+
+	}
+
+	public static void graphUpdate(WGraph g1, WGraph g2){
+		g1 = new WGraph(g2);
+	 
+	}
+	public static int augmentPath(ArrayList<Integer> path, WGraph graph, int[][] fe, int maxflow) {
+		int bottleNeck = 55555555;
+		ArrayList<Edge> edgecapacity = graph.getEdges();
+		for (Edge e : edgecapacity) {
+			bottleNeck = Math.min(bottleNeck, e.weight);
+		}
+
+		for (int i = 0; i < path.size() - 1; i++) {
+			Edge e = graph.getEdge(path.get(i), path.get(i+1));
+			if ( fe[e.nodes[0]][e.nodes[1]] == 0){
+				maxflow -= bottleNeck;
+			}else {
+				maxflow += bottleNeck;
+			}
+		}
+		return maxflow;
 	}
 
 	public static void writeAnswer(String path, String line) {
