@@ -6,13 +6,30 @@ public class FordFulkerson {
 	public static ArrayList<Integer> pathDFS(Integer source, Integer destination, WGraph graph) {
 		ArrayList<Integer> Stack = new ArrayList<Integer>();
 		ArrayList<Integer> nodes = new ArrayList<Integer>();
-		ArrayList<Integer> adj = new ArrayList<Integer>();
+		
 		nodes = getNodes(graph);
 		int[] visited = new int[nodes.size()];
-		adj = getAdj(nodes.get(source), graph);
 		
+		 DFS(source, destination , graph , visited, Stack);
 		
 		return Stack;
+	}
+	public static void DFS (Integer source, Integer destination, WGraph graph, int[] visited, ArrayList<Integer> stack){
+		ArrayList<Integer> adj = new ArrayList<Integer>();
+		ArrayList<Integer> nodes = new ArrayList<Integer>();
+		
+		nodes = getNodes(graph);
+		adj = getAdj(nodes.get(source), graph);
+		visited[source]++;
+		stack.add(nodes.get(source));
+		for (Integer node : adj){
+			if (nodes.get(node) != null && visited[node] ==0){
+			DFS(node, destination, graph, visited, stack);
+
+			}
+		
+
+		}
 	}
 
 
